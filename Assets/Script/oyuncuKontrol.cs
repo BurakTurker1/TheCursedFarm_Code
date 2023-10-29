@@ -9,6 +9,7 @@ public class oyuncuKontrol : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
     private bool ziplamaYapabilir = true;
+    private bool sagaBakiyor = true; // Karakterin ilk baþta saða bakýp bakmadýðýný belirtir
 
     void Start()
     {
@@ -31,9 +32,27 @@ public class oyuncuKontrol : MonoBehaviour
         {
             rb.AddForce(Vector2.up * ziplamaGucu, ForceMode2D.Impulse);
             ziplamaYapabilir = false;
-
-            // Zýplama durumunu Animator Controller'a iletiyoruz
             animator.SetBool("isJump", true);
+        }
+
+        // Karakterin dönme animasyonlarýný ayarlayýn
+        if (horizontalInput > 0)
+        {
+            // Saða doðru hareket ediyor, saða dönme animasyonunu oynatýn
+            if (!sagaBakiyor)
+            {
+                transform.localScale = new Vector3(5, 5, 5); // Karakteri saða döndür
+                sagaBakiyor = true;
+            }
+        }
+        else if (horizontalInput < 0)
+        {
+            // Sola doðru hareket ediyor, sola dönme animasyonunu oynatýn
+            if (sagaBakiyor)
+            {
+                transform.localScale = new Vector3(-5, 5, 5); // Karakteri sola döndür ve ters çevir
+                sagaBakiyor = false;
+            }
         }
     }
 
@@ -43,8 +62,6 @@ public class oyuncuKontrol : MonoBehaviour
         if (collision.gameObject.CompareTag("Zemin"))
         {
             ziplamaYapabilir = true;
-
-            // Zýplama durumunu Animator Controller'a sýfýrlýyoruz
             animator.SetBool("isJump", false);
         }
     }

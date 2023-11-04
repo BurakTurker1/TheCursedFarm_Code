@@ -5,7 +5,7 @@ using UnityEngine;
 public class oyuncuKontrol : MonoBehaviour
 {
     public float hareketHizi = 5.0f; // Hareket hýzý ayarý
-    public float ziplamaGucu = 8.0f; // Zýplama gücü ayarý
+    public float ziplamaGucu = 5.0f; // Zýplama gücü ayarý
     private Rigidbody2D rb;
     private Animator animator;
     private bool ziplamaYapabilir = true;

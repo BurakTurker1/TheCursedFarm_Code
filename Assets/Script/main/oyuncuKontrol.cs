@@ -10,6 +10,7 @@ public class oyuncuKontrol : MonoBehaviour
     private Animator animator; // Animator bileþeni
     private bool ziplamaYapabilir = true; // Zýplamaya izin verme kontrolü
     private bool sagaBakiyor = true; // Karakterin baþta saða mý sola mý baktýðýný kontrol eder
+    private bool hareketEdiyor = false; // Karakterin hareket etme durumu
 
     public AudioSource kosmaSesi; // Koþarken çalacak ses efekti
     public AudioSource ziplamaSesi; // Zýplarken çalacak ses efekti
@@ -18,6 +19,10 @@ public class oyuncuKontrol : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>(); // Rigidbody2D bileþenini al
         animator = GetComponent<Animator>(); // Animator bileþenini al
+
+        // Ses kaynaklarýna ses dosyalarýný atayýn
+        kosmaSesi.clip = Resources.Load<AudioClip>("runSound"); // Koþma sesi için
+        ziplamaSesi.clip = Resources.Load<AudioClip>("jumpSound"); // Zýplama sesi için
     }
 
     void Update()
@@ -30,22 +35,38 @@ public class oyuncuKontrol : MonoBehaviour
         rb.velocity = new Vector2(movement.x * hareketHizi, rb.velocity.y);
 
         // Animator Controller'a hareket durumunu iletiyoruz
-        animator.SetBool("isRun", Mathf.Abs(horizontalInput) > 0);
+        bool yeniHareketEdiyor = Mathf.Abs(horizontalInput) > 0;
+        animator.SetBool("isRun", yeniHareketEdiyor);
+
+        // Hareket durumu deðiþtiðinde koþma sesini çal
+        if (yeniHareketEdiyor && !hareketEdiyor)
+        {
+            kosmaSesi.Play();
+        }
+        else if (!yeniHareketEdiyor)
+        {
+            kosmaSesi.Stop();
+        }
+
+        hareketEdiyor = yeniHareketEdiyor;
 
         if (ziplamaYapabilir && Input.GetButtonDown("Jump")) // "Jump" tuþuna basýldýðýnda zýplamayý tetikle
         {
             rb.AddForce(Vector2.up * ziplamaGucu, ForceMode2D.Impulse); // Zýplama gücünü uygula
             ziplamaYapabilir = false; // Birden fazla zýplamayý engelle
-            animator.SetBool("isJump", true); // Zýplama animasyonunu baþlat
+
+            // Zýplama animasyonunu baþlat
+            if (rb.velocity.y > 0)
+            {
+                animator.Play("jump");
+            }
+            else
+            {
+                animator.Play("jumptofall");
+            }
 
             // Zýplama ses efektini çal
             ziplamaSesi.Play();
-        }
-
-        if (horizontalInput != 0)
-        {
-            // Koþma ses efektini çal
-            kosmaSesi.Play();
         }
 
         if (horizontalInput > 0) // Saða doðru hareket ediliyorsa

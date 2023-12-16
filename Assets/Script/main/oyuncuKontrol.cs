@@ -11,6 +11,7 @@ public class oyuncuKontrol : MonoBehaviour
     private bool ziplamaYapabilir = true; // Zýplamaya izin verme kontrolü
     private bool sagaBakiyor = true; // Karakterin baþta saða mý sola mý baktýðýný kontrol eder
     private bool hareketEdiyor = false; // Karakterin hareket etme durumu
+    private CanSistemi canSistemi; //can sistemi ile baðlantý
 
     public AudioSource kosmaSesi; // Koþarken çalacak ses efekti
     public AudioSource ziplamaSesi; // Zýplarken çalacak ses efekti
@@ -23,6 +24,13 @@ public class oyuncuKontrol : MonoBehaviour
         // Ses kaynaklarýna ses dosyalarýný atayýn
         kosmaSesi.clip = Resources.Load<AudioClip>("runSound"); // Koþma sesi için
         ziplamaSesi.clip = Resources.Load<AudioClip>("jumpSound"); // Zýplama sesi için
+        canSistemi = GetComponent<CanSistemi>(); // Oyuncu nesnesi üzerinde CanSistemi bileþenini arar
+        //can sistemi
+        if (canSistemi == null)
+        {
+            Debug.LogError("CanSistemi bileþeni bulunamadý! Oyuncu nesnesine CanSistemi bileþenini eklediðinizden emin olun.");
+        }
+
     }
 
     void Update()
@@ -87,12 +95,25 @@ public class oyuncuKontrol : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void OnCollisionEnter2D(Collision2D collision)  
     {
-        if (collision.gameObject.CompareTag("Zemin")) // Zeminle temas saðlandýðýnda
+      
+        if (collision.gameObject.CompareTag("Zemin"))
         {
+
             ziplamaYapabilir = true; // Tekrar zýplamaya izin ver
             animator.SetBool("isJump", false); // Zýplama animasyonunu kapat
+        }
+        else if (collision.gameObject.CompareTag("Tuzak"))
+        {
+            if (canSistemi != null)
+            {
+                canSistemi.CanKaybi();
+            }
+            else
+            {
+                Debug.LogError("CanSistemi bileþeni bulunamadý!");
+            }
         }
     }
 }
